@@ -3,7 +3,7 @@ export default class User {
     public id:string | null,
     public username: string,
     public password: string,
-    public email:string | null,
+    public email:string,
     public createdAt?:string,
     public updatedAt?:string,
   ) {}
