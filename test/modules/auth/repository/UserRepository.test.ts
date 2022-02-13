@@ -35,4 +35,23 @@ describe('UserRepository test', () => {
       expect(result).to.be.deep.eq(userData);
     });
   });
+  describe('save test', () => {
+    it('persists a new user', async () => {
+      await userRepository.save(new User(null, 'testname', 'testpass', 'test'));
+      const result = await UserModel.findOne({ where: { username: 'testname' } });
+      expect(result).to.have.property('id').to.not.be.undefined;
+    });
+
+    it('updates a user', async () => {
+      const userData : Partial<User> = new User('1', 'testname', 'testpass', 'test');
+      let userModel = await UserModel.build(userData, { isNewRecord: true });
+      userModel = await userModel.save();
+      userData.password = 'newpass';
+      await userRepository.save(userData);
+      const result = await UserModel.findOne({ where: { username: 'testname' } });
+      expect(result).to.have.property('password').to.be.eq('newpass');
+      expect(result).property('createdAt').to.be.deep.eq(userModel.getDataValue('createdAt'));
+      expect(result).property('updatedAt').to.not.be.deep.eq(userModel.getDataValue('updatedAt'));
+    });
+  });
 });

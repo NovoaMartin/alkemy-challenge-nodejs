@@ -17,5 +17,15 @@
         "@typescript-eslint"
     ],
     "rules": {
-    }
+        "no-console": "off",
+        "no-param-reassign": "off"
+    },
+    "overrides": [
+        {
+            "files": ["*.test.ts", "*.spec.ts"],
+            "rules": {
+                "@typescript-eslint/no-unused-expressions": "off"
+            }
+        }
+    ]
 }
