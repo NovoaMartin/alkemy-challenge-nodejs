@@ -4,6 +4,7 @@ import { describe } from 'mocha';
 import { createSandbox, SinonSandbox } from 'sinon';
 import { Sequelize } from 'sequelize';
 import { expect } from 'chai';
+import { v4 } from 'uuid';
 import UserRepository from '../../../../src/modules/auth/repository/UserRepository';
 import UserModel from '../../../../src/modules/auth/model/UserModel';
 import User from '../../../../src/modules/auth/entity/User';
@@ -39,15 +40,18 @@ describe('UserRepository test', () => {
     it('persists a new user', async () => {
       await userRepository.save(new User(null, 'testname', 'testpass', 'test'));
       const result = await UserModel.findOne({ where: { username: 'testname' } });
-      expect(result).to.have.property('id').to.not.be.undefined;
+      expect(result).to.have.property('id').to.not.be.null;
     });
 
     it('updates a user', async () => {
-      const userData : Partial<User> = new User('1', 'testname', 'testpass', 'test');
+      const userData : Partial<User> = {
+        id: v4(), username: 'testname', password: 'testpass', email: 'test',
+      };
       let userModel = await UserModel.build(userData, { isNewRecord: true });
       userModel = await userModel.save();
-      userData.password = 'newpass';
-      await userRepository.save(userData);
+
+      await userRepository.save({ ...userData, password: 'newpass' });
+
       const result = await UserModel.findOne({ where: { username: 'testname' } });
       expect(result).to.have.property('password').to.be.eq('newpass');
       expect(result).property('createdAt').to.be.deep.eq(userModel.getDataValue('createdAt'));
