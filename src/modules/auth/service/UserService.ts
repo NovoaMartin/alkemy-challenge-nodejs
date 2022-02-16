@@ -49,7 +49,7 @@ export default class UserService {
     return this.sendEmail(msg);
   }
 
-  async sendEmail(msg : { to: string, from:string, subject: string, html:string }) {
+  private async sendEmail(msg : { to: string, from:string, subject: string, html:string }) {
     return this.emailService.send(msg);
   }
 }
