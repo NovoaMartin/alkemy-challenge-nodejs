@@ -9,11 +9,15 @@ dotenv.config();
 const app = express();
 const { PORT } = process.env;
 
-app.use(express.json);
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const container: AwilixContainer = configureDI();
 
 initAuthModule(app, container);
+
+app.get('/', (req, res) => {
+  res.json({ data: 'pepe' });
+});
 
 app.listen(PORT, () => console.log(`App listening on port ${PORT}`));

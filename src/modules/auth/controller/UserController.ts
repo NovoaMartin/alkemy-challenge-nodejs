@@ -1,6 +1,7 @@
 import { Application, Request, Response } from 'express';
 import { validate as emailValidator } from 'email-validator';
 import UserService from '../service/UserService';
+import User from '../entity/User';
 
 export default class UserController {
   private readonly ROUTE : string;
@@ -11,11 +12,13 @@ export default class UserController {
 
   /* istanbul ignore next */
   configureRoutes(app : Application) {
+    console.log('Reached');
     app.post(`${this.ROUTE}/register`, this.register.bind(this));
     app.post(`${this.ROUTE}/login`, this.signIn.bind(this));
   }
 
   async register(req : Request, res : Response) {
+    console.log('REgister');
     const { username, password, email } = req.body;
 
     if (!username) {
@@ -48,9 +51,14 @@ export default class UserController {
       return res.status(400).json({ data: {}, err: { msg: 'Username already registered' } });
     }
 
-    const savedUser = await this.userService.add({ username, password, email });
+    const savedUser : User = await this.userService.add({ username, password, email });
     await this.userService.sendWelcomeEmail(savedUser);
-    return res.status(200).json(savedUser);
+
+    return res.status(200).json({
+      data: {
+        id: savedUser.id,
+      },
+    });
   }
 
   async signIn(req : Request, res : Response) {
