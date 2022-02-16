@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^7.6.1",
     "@types/uuid": "^8.3.4",
     "awilix": "^6.1.0",
     "bcrypt": "^5.0.1",

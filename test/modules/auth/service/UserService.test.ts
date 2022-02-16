@@ -6,9 +6,12 @@ import { createSandbox, SinonSandbox, SinonStubbedInstance } from 'sinon';
 import { expect } from 'chai';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { MailService } from '@sendgrid/mail';
 import UserRepository from '../../../../src/modules/auth/repository/UserRepository';
 import User from '../../../../src/modules/auth/entity/User';
 import UserService from '../../../../src/modules/auth/service/UserService';
+import UserNotFoundException from '../../../../src/modules/auth/exception/UserNotFoundException';
+import IncorrectPasswordException from '../../../../src/modules/auth/exception/IncorrectPasswordException';
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -16,11 +19,13 @@ chai.use(sinonChai);
 describe('UserService tests', () => {
   let userService: UserService;
   let userRepository: SinonStubbedInstance<UserRepository>;
+  let mailService : SinonStubbedInstance<MailService>;
   let sandbox: SinonSandbox;
   beforeEach(() => {
     sandbox = createSandbox();
     userRepository = sandbox.createStubInstance(UserRepository);
-    userService = new UserService(userRepository, bcrypt, null);
+    mailService = sandbox.createStubInstance(MailService);
+    userService = new UserService(userRepository, bcrypt, mailService);
   });
   afterEach(() => {
     sandbox.restore();
@@ -50,22 +55,24 @@ describe('UserService tests', () => {
 
   describe('signIn test', () => {
     it('calls repository with correct value', async () => {
-      await userService.signIn('name', 'password');
+      try {
+        await userService.signIn('name', 'password');
+      } catch (e) {
+        // Should throw exception userNotFound after calling repository
+      }
       expect(userRepository.getByName).to.have.been.calledOnceWithExactly('name');
     });
-    it('returns null with incorrect password', async () => {
+    it('throws with incorrect password', async () => {
       const userData = new User('1', 'user', 'password', 'test');
       userRepository.getByName.resolves(userData);
-      const result = await userService.signIn('user', 'incorrectPassword');
-
-      expect(result).to.be.null;
+      const promise = userService.signIn('user', 'incorrectPassword');
+      expect(promise).to.be.rejectedWith(IncorrectPasswordException);
     });
-    it('returns null with incorrect username', async () => {
+    it('throws with incorrect username', async () => {
       const userData = new User('1', 'user', 'password', 'test');
       userRepository.getByName.resolves(userData);
-      const result = await userService.signIn('incorrectUsername', 'password');
-
-      expect(result).to.be.null;
+      const promise = userService.signIn('incorrectUsername', 'password');
+      expect(promise).to.be.rejectedWith(UserNotFoundException);
     });
 
     it('returns a valid jwt on success', async () => {
@@ -79,6 +86,20 @@ describe('UserService tests', () => {
 
       expect(result).to.have.property('id', '1');
       expect(result).to.have.property('exp');
+    });
+  });
+
+  describe('sendWelcomeEmail test', () => {
+    it('calls sendEmail with correct parameter', async () => {
+      const userData = new User('1', 'name', 'pass', 'test@test.test', '1/1/2020');
+      await userService.sendWelcomeEmail(userData);
+
+      expect(mailService.send).to.have.been.calledOnce;
+      const parameter = mailService.send.getCalls()[0].args[0];
+      expect(parameter).to.have.property('to', 'test@test.test');
+      expect(parameter).to.have.property('from', process.env.SENDER_EMAIL);
+      expect(parameter).to.have.property('subject', `Welcome ${userData.username} to disney world api`);
+      expect(parameter).to.have.property('html');
     });
   });
 });
