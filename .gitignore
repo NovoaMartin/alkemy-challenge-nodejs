@@ -142,6 +142,8 @@ web_modules/
 # Yarn Integrity file
 .yarn-integrity
 
+./config/dbSetup.json
+
 # dotenv environment variables file
 .env
 .env.test

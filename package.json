@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/uuid": "^8.3.4",
     "awilix": "^6.1.0",
     "bcrypt": "^5.0.1",
     "chai-as-promised": "^7.1.1",
@@ -18,7 +19,8 @@
     "pg": "^8.7.3",
     "sequelize": "^6.16.1",
     "sinon-chai": "^3.7.0",
-    "sqlite3": "^5.0.2"
+    "sqlite3": "^5.0.2",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

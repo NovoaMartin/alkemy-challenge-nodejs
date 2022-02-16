@@ -2,5 +2,5 @@ const path = require('path');
 
 module.exports = {
   'config': path.resolve("config","dbSetup.json"),
-  'migrations-path': path.resolve('dist', 'config', 'migrations')
+  'migrations-path': path.resolve('dist', 'src', 'config', 'migrations')
 };

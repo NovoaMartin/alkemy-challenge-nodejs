@@ -5,13 +5,15 @@ export default class UserModel extends Model {
     UserModel.init(
       {
         id: {
-          type: DataTypes.UUIDV4,
-          allowNull: false,
+          type: DataTypes.UUID,
+          defaultValue: DataTypes.UUIDV4,
           primaryKey: true,
+          unique: true,
         },
         username: {
           type: DataTypes.STRING,
           allowNull: false,
+          unique: true,
         },
         password: {
           type: DataTypes.STRING,
@@ -24,6 +26,8 @@ export default class UserModel extends Model {
       },
       {
         sequelize: sequelizeInstance,
+        modelName: 'user',
+        tableName: 'users',
       },
     );
     return UserModel;
