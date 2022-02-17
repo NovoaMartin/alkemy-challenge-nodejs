@@ -1,0 +1,9 @@
+{
+  "development": {
+    "usernatme": "user",
+    "password": "password",
+    "database": "dbname",
+    "host": "host",
+    "dialect": "postgres"
+  }
+}

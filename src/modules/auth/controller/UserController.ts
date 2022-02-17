@@ -12,7 +12,6 @@ export default class UserController {
 
   /* istanbul ignore next */
   configureRoutes(app : Application) {
-    console.log('Reached');
     app.post(`${this.ROUTE}/register`, this.register.bind(this));
     app.post(`${this.ROUTE}/login`, this.signIn.bind(this));
   }

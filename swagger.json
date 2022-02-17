@@ -1,0 +1,134 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0",
+    "title": "Disney world api challenge",
+    "description": "API made for the alkemy node.js backend challenge"
+  },
+  "host": "localhost:8080",
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new account",
+        "description": "Register a new account, email may be duplicated",
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "username",
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "password",
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "email",
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "id of the created user"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object"
+                },
+                "err": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/signIn": {
+      "post": {
+        "parameters": [
+          {
+            "in": "formData",
+            "type": "string",
+            "name": "username"
+          },
+          {
+            "name": "password",
+            "type": "string",
+            "in": "formData"
+          }
+        ],
+        "summary": "Signs in user",
+        "description": "Signs in and responds with the generated token valid for 7 days",
+        "responses": {
+          "200": {
+            "description": "Successful operation, returns token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fail due to invalid credentials",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object"
+                },
+                "err": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

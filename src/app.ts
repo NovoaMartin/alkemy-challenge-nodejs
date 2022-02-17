@@ -1,8 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { AwilixContainer } from 'awilix';
+import swaggerUi from 'swagger-ui-express';
 import initAuthModule from './modules/auth/module';
 import configureDI from './config/di';
+import swaggerDocument from '../swagger.json';
 
 dotenv.config();
 
@@ -14,10 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const container: AwilixContainer = configureDI();
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 initAuthModule(app, container);
-
-app.get('/', (req, res) => {
-  res.json({ data: 'pepe' });
-});
 
 app.listen(PORT, () => console.log(`App listening on port ${PORT}`));
