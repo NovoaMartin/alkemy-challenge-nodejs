@@ -14,9 +14,6 @@ export default {
   },
 
   async down(queryInterface: QueryInterface, Sequelize: T) {
-    await queryInterface.dropTable('users');
-    await queryInterface.dropTable('characters');
-    await queryInterface.dropTable('films');
-    await queryInterface.dropTable('genres');
+    await queryInterface.dropAllTables();
   },
 };

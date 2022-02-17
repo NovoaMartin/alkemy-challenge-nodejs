@@ -149,7 +149,7 @@ describe('userController test', () => {
 
       delete userData.password;
       expect(res.status).to.have.been.calledOnceWithExactly(200);
-      expect(res.json).to.have.been.calledOnceWithExactly(userData);
+      expect(res.json).to.have.been.calledOnceWithExactly({ data: { id: userData.id } });
     });
     it('responds with error if username exists', async () => {
       const request = {

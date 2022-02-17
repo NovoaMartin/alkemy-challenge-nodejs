@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --require ts-node/register  \"test\\**\\*.ts\"",
+    "dev": "node --require ts-node/register ./src/app.ts --project /tsconfig.json",
+    "start": "tsc && node ./dist/src/app.js",
+    "migrate": "tsc && sequelize-cli db:migrate:undo && sequelize-cli db:migrate"
   },
   "author": "",
   "license": "ISC",
