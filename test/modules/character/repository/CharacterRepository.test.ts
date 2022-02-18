@@ -91,4 +91,38 @@ describe('CharacterRepository test', () => {
       expect(result).to.be.false;
     });
   });
+
+  describe('search test', () => {
+    const char1 : Partial<Character> = new Character(v4(), 'none', 'name', 'story', 1, 1);
+    const char2 : Partial<Character> = new Character(v4(), 'none', 'shrek', 'story', 1, 4);
+    const char3 : Partial<Character> = new Character(v4(), 'none', 'fiona', 'story', 2, 4);
+    beforeEach(async () => {
+      await CharacterModel.create(char1, { isNewRecord: true });
+      await CharacterModel.create(char2, { isNewRecord: true });
+      await CharacterModel.create(char3, { isNewRecord: true });
+    });
+    it('searches by age', async () => {
+      const result = await characterRespository.search(null, 1);
+      const expectedResult = [
+        { id: char1.id, name: char1.name, image: char1.image },
+        { id: char2.id, name: char2.name, image: char2.image }];
+      expect(result).to.deep.eq(expectedResult);
+    });
+    it('searches by weight', async () => {
+      const result = await characterRespository.search(null, null, 4);
+      const expectedResult = [
+        { id: char2.id, name: char2.name, image: char2.image },
+        { id: char3.id, name: char3.name, image: char3.image }];
+      expect(result).to.deep.eq(expectedResult);
+    });
+    it('searches by name', async () => {
+      const result = await characterRespository.search('on');
+      const expectedResult = [{ id: char3.id, name: char3.name, image: char3.image }];
+      expect(result).to.deep.eq(expectedResult);
+    });
+    it('returns empty array if no character is found', async () => {
+      const result = await characterRespository.search('invalidName');
+      expect(result).to.deep.eq([]);
+    });
+  });
 });
