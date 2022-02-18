@@ -1,27 +1,26 @@
-import { DataTypes, Model, Sequelize } from 'sequelize';
+import {
+  DataType, Model, Column, PrimaryKey, Unique, Default, HasMany, Table,
+} from 'sequelize-typescript';
+// eslint-disable-next-line import/no-cycle
+import FilmModel from '../../film/model/FilmModel';
 
+@Table({
+  tableName: 'genres',
+  modelName: 'genre',
+})
 export default class GenreModel extends Model {
-  static setup(sequelizeInstance : Sequelize) {
-    GenreModel.init({
-      id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        unique: true,
-        primaryKey: true,
-      },
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      image: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-    }, {
-      sequelize: sequelizeInstance,
-      tableName: 'genres',
-      modelName: 'genre',
-    });
-    return GenreModel;
-  }
+  @PrimaryKey
+  @Unique
+  @Column(DataType.UUID)
+    id! : string;
+
+  @Column
+    name! : string;
+
+  @Default('')
+  @Column
+    image! : string;
+
+  @HasMany(() => FilmModel)
+    films! : FilmModel[];
 }

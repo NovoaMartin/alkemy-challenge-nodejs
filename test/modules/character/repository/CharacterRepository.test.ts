@@ -2,13 +2,16 @@ import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { describe } from 'mocha';
 import { createSandbox, SinonSandbox } from 'sinon';
-import { Sequelize } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import { expect } from 'chai';
 import { v4 } from 'uuid';
 import CharacterRepository from '../../../../src/modules/character/repository/CharacterRepository';
-import CharacterModel from '../../../../src/modules/character/model/CharacterModel';
+import CharacterModel, { CharacterFilm } from '../../../../src/modules/character/model/CharacterModel';
 import Character from '../../../../src/modules/character/entity/Character';
 import CharacterNotFoundException from '../../../../src/modules/character/exception/CharacterNotFoundException';
+import FilmModel from '../../../../src/modules/film/model/FilmModel';
+import GenreModel from '../../../../src/modules/genre/model/GenreModel';
+import { UserModel } from '../../../../src/modules/auth/module';
 
 chai.use(chaiAsPromised);
 
@@ -17,7 +20,9 @@ describe('CharacterRepository test', () => {
   let sandbox : SinonSandbox;
   beforeEach(async () => {
     sandbox = createSandbox();
-    await CharacterModel.setup(new Sequelize('sqlite::memory')).sync({ force: true });
+    const sequelizeInstance : Sequelize = new Sequelize('sqlite::memory');
+    sequelizeInstance.addModels([UserModel, CharacterModel, FilmModel, GenreModel, CharacterFilm]);
+    await sequelizeInstance.sync({ force: true });
     characterRespository = new CharacterRepository(CharacterModel);
   });
   afterEach(() => {
@@ -49,6 +54,7 @@ describe('CharacterRepository test', () => {
       expect(characterRespository.getById('')).to.be.rejectedWith(CharacterNotFoundException);
     });
     it('returns the found character', async () => {
+      // const film : Partial<Film>
       const char1 : Partial<Character> = new Character(v4(), 'none', 'name', 'story', 1, 1);
       await CharacterModel.create(char1, { isNewRecord: true });
       const result = await characterRespository.getById(char1.id!);

@@ -1,35 +1,24 @@
-import { DataTypes, Model, Sequelize } from 'sequelize';
+import {
+  Column, DataType, PrimaryKey, Table, Unique, Model,
+} from 'sequelize-typescript';
 
+@Table({
+  tableName: 'users',
+  modelName: 'user',
+})
 export default class UserModel extends Model {
-  static setup(sequelizeInstance: Sequelize) {
-    UserModel.init(
-      {
-        id: {
-          type: DataTypes.UUID,
-          defaultValue: DataTypes.UUIDV4,
-          primaryKey: true,
-          unique: true,
-        },
-        username: {
-          type: DataTypes.STRING,
-          allowNull: false,
-          unique: true,
-        },
-        password: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        email: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-      },
-      {
-        sequelize: sequelizeInstance,
-        modelName: 'user',
-        tableName: 'users',
-      },
-    );
-    return UserModel;
-  }
+  @PrimaryKey
+  @Unique
+  @Column(DataType.UUID)
+    id!: string;
+
+  @Unique
+  @Column
+    username! : string;
+
+  @Column
+    password! : string;
+
+  @Column
+    email! : string;
 }

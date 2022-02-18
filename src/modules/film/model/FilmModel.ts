@@ -1,46 +1,42 @@
-import { DataTypes, Model, Sequelize } from 'sequelize';
-import CharacterModel from '../../character/model/CharacterModel';
+import {
+  BelongsTo, BelongsToMany,
+  Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table, Unique,
+} from 'sequelize-typescript';
+// eslint-disable-next-line import/no-cycle
+import CharacterModel, { CharacterFilm } from '../../character/model/CharacterModel';
+// eslint-disable-next-line import/no-cycle
 import GenreModel from '../../genre/model/GenreModel';
 
+@Table({
+  tableName: 'films',
+  modelName: 'film',
+})
 export default class FilmModel extends Model {
-  static setup(sequelizeInstance:Sequelize) {
-    FilmModel.init({
-      id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        primaryKey: true,
-        unique: true,
-      },
-      image: {
-        type: DataTypes.STRING,
-        defaultValue: '',
-      },
-      title: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      releaseDate: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      rating: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
-      },
-    }, {
-      sequelize: sequelizeInstance,
-      tableName: 'films',
-      modelName: 'film',
-    });
-    return FilmModel;
-  }
+  @PrimaryKey
+  @Unique
+  @Column(DataType.UUID)
+    id! : string;
 
-  static setupAssociations() {
-    FilmModel.belongsToMany(CharacterModel, { through: 'FilmCharacter' });
-    CharacterModel.belongsToMany(FilmModel, { through: 'FilmCharacter' });
+  @Default('')
+  @Column
+    image! : string;
 
-    GenreModel.hasMany(FilmModel, { foreignKey: 'genreId' });
-    FilmModel.belongsTo(GenreModel, { foreignKey: 'genreId' });
-    return FilmModel;
-  }
+  @Column
+    title! : string;
+
+  @Column(DataType.DATE)
+    releaseDate! : Date;
+
+  @Column(DataType.FLOAT)
+    rating! : number;
+
+  @ForeignKey(() => GenreModel)
+  @Column(DataType.UUID)
+    genreId!: number;
+
+  @BelongsTo(() => GenreModel)
+    genre! : GenreModel;
+
+  @BelongsToMany(() => CharacterModel, () => CharacterFilm)
+    characters!: CharacterModel[];
 }

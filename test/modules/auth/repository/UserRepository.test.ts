@@ -2,7 +2,7 @@ import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { describe } from 'mocha';
 import { createSandbox, SinonSandbox } from 'sinon';
-import { Sequelize } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import { expect } from 'chai';
 import { v4 } from 'uuid';
 import UserRepository from '../../../../src/modules/auth/repository/UserRepository';
@@ -17,7 +17,9 @@ describe('UserRepository test', () => {
   let sandbox : SinonSandbox;
   beforeEach(async () => {
     sandbox = createSandbox();
-    await UserModel.setup(new Sequelize('sqlite::memory')).sync({ force: true });
+    const sequelizeInstance = new Sequelize('sqlite::memory');
+    sequelizeInstance.addModels([UserModel]);
+    await sequelizeInstance.sync({ force: true });
     userRepository = new UserRepository(UserModel);
   });
   afterEach(() => {

@@ -5,6 +5,7 @@ import CharacterListDTO from '../dto/characterListDTO';
 import { fromModelToCharacter, fromModelToCharacterList } from '../mapper/characterMapper';
 import CharacterNotFoundException from '../exception/CharacterNotFoundException';
 import Character from '../entity/Character';
+import FilmModel from '../../film/model/FilmModel';
 
 export default class CharacterRepository {
   constructor(private characterModel : typeof CharacterModel) {}
@@ -16,7 +17,7 @@ export default class CharacterRepository {
   }
 
   async getById(id : string) : Promise<Character> {
-    const result = await this.characterModel.findByPk(id);
+    const result = await this.characterModel.findByPk(id, { include: FilmModel });
     if (!result) throw new CharacterNotFoundException();
     return fromModelToCharacter(result);
   }
@@ -48,19 +49,5 @@ export default class CharacterRepository {
     return (await this.characterModel.findAll({ where: whereCondition })).map(
       (item) => fromModelToCharacterList(item),
     );
-    // await this.characterModel.findAll({
-    //   where:
-    //     {
-    //       name: {
-    //         [Op.like]: name,
-    //       },
-    //       age: {
-    //         age,
-    //       },
-    //       weight: {
-    //         weight,
-    //       },
-    //     },
-    // });
   }
 }

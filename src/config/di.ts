@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import { config } from 'dotenv';
 import {
   createContainer, AwilixContainer, asFunction, asClass, asValue,
@@ -9,17 +9,17 @@ import sendgrid from '@sendgrid/mail';
 import {
   UserController, UserModel, UserRepository, UserService,
 } from '../modules/auth/module';
+import FilmModel from '../modules/film/model/FilmModel';
+import CharacterModel from '../modules/character/model/CharacterModel';
+import GenreModel from '../modules/genre/model/GenreModel';
 
 config();
 
 function configureSequelize() {
-  return new Sequelize(process.env.DB_URI || '', {
+  const sequelize = new Sequelize(process.env.DB_URI || '', {
     dialect: 'postgres',
   });
-}
-
-function setupUserModel(container: AwilixContainer) {
-  return UserModel.setup(container.resolve('sequelize'));
+  sequelize.addModels([UserModel, FilmModel, CharacterModel, GenreModel]);
 }
 
 function addCommonDefinitions(container: AwilixContainer) {
@@ -37,7 +37,7 @@ function addUserModuleDefinitions(container: AwilixContainer) {
     userController: asClass(UserController),
     userService: asClass(UserService),
     userRepository: asClass(UserRepository),
-    userModel: asFunction(setupUserModel),
+    userModel: asValue(UserModel),
   });
 }
 

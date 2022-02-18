@@ -1,19 +1,16 @@
-import { QueryInterface, Sequelize as T } from 'sequelize';
-import UserModel from '../../modules/auth/model/UserModel';
+import { config } from 'dotenv';
+import { Sequelize } from 'sequelize-typescript';
+import { UserModel } from '../../modules/auth/module';
+import CharacterModel, { CharacterFilm } from '../../modules/character/model/CharacterModel';
 import FilmModel from '../../modules/film/model/FilmModel';
 import GenreModel from '../../modules/genre/model/GenreModel';
-import CharacterModel from '../../modules/character/model/CharacterModel';
 
-export default {
-  async up(queryInterface: QueryInterface, Sequelize: T) {
-    await UserModel.setup(queryInterface.sequelize);
-    await GenreModel.setup(queryInterface.sequelize);
-    await CharacterModel.setup(queryInterface.sequelize);
-    await FilmModel.setup(queryInterface.sequelize).setupAssociations();
-    await queryInterface.sequelize.sync({ force: true });
-  },
+config();
 
-  async down(queryInterface: QueryInterface, Sequelize: T) {
-    await queryInterface.dropAllTables();
-  },
-};
+(async () => {
+  const sequelize = new Sequelize(process.env.DB_URI!, {
+    dialect: 'postgres',
+    models: [UserModel, CharacterModel, FilmModel, GenreModel, CharacterFilm],
+  });
+  await sequelize.sync({ force: true });
+})();
