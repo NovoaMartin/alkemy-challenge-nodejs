@@ -1,4 +1,5 @@
 import { v4 } from 'uuid';
+import { Op } from 'sequelize';
 import CharacterModel from '../model/CharacterModel';
 import CharacterListDTO from '../dto/characterListDTO';
 import { fromModelToCharacter, fromModelToCharacterList } from '../mapper/characterMapper';
@@ -31,5 +32,35 @@ export default class CharacterRepository {
 
   async delete(id : string) {
     return !!(await this.characterModel.destroy({ where: { id } }));
+  }
+
+  async search(name? : string | null, age?: number | null, weight? : number) {
+    const whereCondition : any = {};
+    if (name) {
+      whereCondition.name = { [Op.like]: `%${name}%` };
+    }
+    if (age) {
+      whereCondition.age = age;
+    }
+    if (weight) {
+      whereCondition.weight = weight;
+    }
+    return (await this.characterModel.findAll({ where: whereCondition })).map(
+      (item) => fromModelToCharacterList(item),
+    );
+    // await this.characterModel.findAll({
+    //   where:
+    //     {
+    //       name: {
+    //         [Op.like]: name,
+    //       },
+    //       age: {
+    //         age,
+    //       },
+    //       weight: {
+    //         weight,
+    //       },
+    //     },
+    // });
   }
 }
