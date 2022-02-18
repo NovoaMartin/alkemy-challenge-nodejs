@@ -25,7 +25,7 @@ export default class CharacterModel extends Model {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
-      weigth: {
+      weight: {
         type: DataTypes.FLOAT,
         allowNull: true,
       },
