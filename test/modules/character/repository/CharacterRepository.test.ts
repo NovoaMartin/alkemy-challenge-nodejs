@@ -12,8 +12,8 @@ import CharacterNotFoundException from '../../../../src/modules/character/except
 import FilmModel from '../../../../src/models/FilmModel';
 import GenreModel from '../../../../src/models/GenreModel';
 import { UserModel } from '../../../../src/modules/auth/module';
-import { fromModelToCharacter } from '../../../../src/modules/character/mapper/characterMapper';
 import CharacterFilm from '../../../../src/models/CharacterFilm';
+import InvalidFilmGivenException from '../../../../src/modules/character/exception/InvalidFilmGivenException';
 
 chai.use(chaiAsPromised);
 
@@ -29,18 +29,6 @@ describe('CharacterRepository test', () => {
   });
   afterEach(() => {
     sandbox.restore();
-  });
-
-  it('test', async () => {
-    const char1 : Partial<Character> = new Character(v4(), 'none', 'name', 'sry', 1, 1, []);
-    const charModel = await CharacterModel.create(char1, { isNewRecord: true });
-    const filmModel = await FilmModel.create({
-      id: v4(), image: 'none', title: 'title', releaseDate: new Date(),
-    });
-    await charModel.addFilm(filmModel);
-    const retrieve = await CharacterModel.findAll({ });
-    const res = await fromModelToCharacter(retrieve[0]);
-    console.log(res);
   });
 
   describe('getAll test', () => {
@@ -162,6 +150,10 @@ describe('CharacterRepository test', () => {
       const associatedFilms = await result!.getFilms();
       expect(associatedFilms).to.have.length(1);
       expect(associatedFilms[0].id).to.be.eq(filmModel2.id);
+    })
+
+    it("throws if given wrong filmId as parameter", async()=>{
+      expect(characterRespository.save({id:v4()}, ["1"])).to.be.rejectedWith(InvalidFilmGivenException)
     })
   });
 
