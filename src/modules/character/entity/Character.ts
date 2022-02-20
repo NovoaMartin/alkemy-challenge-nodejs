@@ -6,5 +6,6 @@ export default class Character {
     public story : string,
     public age? : number,
     public weight? : number,
+    public films? : { title:string, href:string }[],
   ) {}
 }

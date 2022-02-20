@@ -9,9 +9,9 @@ import sendgrid from '@sendgrid/mail';
 import {
   UserController, UserModel, UserRepository, UserService,
 } from '../modules/auth/module';
-import FilmModel from '../modules/film/model/FilmModel';
-import CharacterModel from '../modules/character/model/CharacterModel';
-import GenreModel from '../modules/genre/model/GenreModel';
+import FilmModel from '../models/FilmModel';
+import CharacterModel from '../models/CharacterModel';
+import GenreModel from '../models/GenreModel';
 
 config();
 

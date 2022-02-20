@@ -1,10 +1,22 @@
-// eslint-disable-next-line max-classes-per-file
 import {
-  AllowNull, BelongsToMany,
-  Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table, Unique,
+  AllowNull,
+  BelongsToMany,
+  Column,
+  DataType,
+  Default,
+  Model,
+  PrimaryKey,
+  Table,
+  Unique,
 } from 'sequelize-typescript';
 // eslint-disable-next-line import/no-cycle
-import FilmModel from '../../film/model/FilmModel';
+import {
+  BelongsToManyAddAssociationMixin,
+  BelongsToManyGetAssociationsMixin,
+  BelongsToManyRemoveAssociationMixin,
+} from 'sequelize';
+import FilmModel from './FilmModel';
+import CharacterFilm from './CharacterFilm';
 
 @Table({
   tableName: 'characters',
@@ -37,18 +49,11 @@ export default class CharacterModel extends Model {
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   @BelongsToMany(() => FilmModel, () => CharacterFilm)
     films!: FilmModel[];
-}
 
-@Table({
-  tableName: 'character_film_rel',
-  modelName: 'character_film',
-})
-export class CharacterFilm extends Model {
-  @ForeignKey(() => CharacterModel)
-  @Column(DataType.UUID)
-    characterId! : string;
+  declare getFilms : BelongsToManyGetAssociationsMixin<FilmModel>;
 
-  @ForeignKey(() => FilmModel)
-  @Column(DataType.UUID)
-    filmId! : string;
+  declare addFilm : BelongsToManyAddAssociationMixin<FilmModel, FilmModel['id']>;
+
+  declare removeFilm : BelongsToManyRemoveAssociationMixin<FilmModel, FilmModel['id']>;
+
 }

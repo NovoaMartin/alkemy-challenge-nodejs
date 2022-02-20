@@ -2,7 +2,8 @@ import {
   DataType, Model, Column, PrimaryKey, Unique, Default, HasMany, Table,
 } from 'sequelize-typescript';
 // eslint-disable-next-line import/no-cycle
-import FilmModel from '../../film/model/FilmModel';
+import { HasManyGetAssociationsMixin } from 'sequelize';
+import FilmModel from './FilmModel';
 
 @Table({
   tableName: 'genres',
@@ -23,4 +24,6 @@ export default class GenreModel extends Model {
 
   @HasMany(() => FilmModel)
     films! : FilmModel[];
+
+  declare getFilms : HasManyGetAssociationsMixin<FilmModel>;
 }

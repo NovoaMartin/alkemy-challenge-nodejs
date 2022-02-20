@@ -6,7 +6,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { expect } from 'chai';
 import { v4 } from 'uuid';
 import UserRepository from '../../../../src/modules/auth/repository/UserRepository';
-import UserModel from '../../../../src/modules/auth/model/UserModel';
+import UserModel from '../../../../src/models/UserModel';
 import User from '../../../../src/modules/auth/entity/User';
 import UserNotFoundException from '../../../../src/modules/auth/exception/UserNotFoundException';
 

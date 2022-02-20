@@ -1,22 +1,25 @@
-import CharacterModel from '../model/CharacterModel';
+import CharacterModel from '../../../models/CharacterModel';
 import Character from '../entity/Character';
 import CharacterListDTO from '../dto/characterListDTO';
 
-export function fromModelToCharacter(model: CharacterModel) {
+export async function fromModelToCharacter(model: CharacterModel) : Promise<Character> {
   return new Character(
-    model.getDataValue('id'),
-    model.getDataValue('image'),
-    model.getDataValue('name'),
-    model.getDataValue('story'),
-    model.getDataValue('age'),
-    model.getDataValue('weight'),
+    model.id,
+    model.image,
+    model.name,
+    model.story,
+    model.age,
+    model.weight,
+    (await model.getFilms()).map((film) => (
+      {  title: film.title, href: `${process.env.BASE_URL}/movies/${film.id}` })
+    ),
   );
 }
 
 export function fromModelToCharacterList(model : CharacterModel) {
   return new CharacterListDTO(
-    model.getDataValue('id'),
-    model.getDataValue('name'),
-    model.getDataValue('image'),
+    model.id,
+    model.name,
+    model.image,
   );
 }

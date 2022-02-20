@@ -1,6 +1,6 @@
 import { v4 } from 'uuid';
 import User from '../entity/User';
-import UserModel from '../model/UserModel';
+import UserModel from '../../../models/UserModel';
 import UserNotFoundException from '../exception/UserNotFoundException';
 
 export default class UserRepository {

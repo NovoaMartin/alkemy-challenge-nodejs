@@ -1,7 +1,7 @@
 import { AwilixContainer } from 'awilix';
 import { Application } from 'express';
 import UserController from './controller/UserController';
-import UserModel from './model/UserModel';
+import UserModel from '../../models/UserModel';
 import UserRepository from './repository/UserRepository';
 import UserService from './service/UserService';
 

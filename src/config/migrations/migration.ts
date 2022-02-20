@@ -1,9 +1,10 @@
 import { config } from 'dotenv';
 import { Sequelize } from 'sequelize-typescript';
 import { UserModel } from '../../modules/auth/module';
-import CharacterModel, { CharacterFilm } from '../../modules/character/model/CharacterModel';
-import FilmModel from '../../modules/film/model/FilmModel';
-import GenreModel from '../../modules/genre/model/GenreModel';
+import CharacterModel from '../../models/CharacterModel';
+import FilmModel from '../../models/FilmModel';
+import GenreModel from '../../models/GenreModel';
+import  CharacterFilm  from '../../models/CharacterFilm';
 
 config();
 

@@ -1,11 +1,19 @@
 import { v4 } from 'uuid';
 import { Op } from 'sequelize';
-import CharacterModel from '../model/CharacterModel';
+import CharacterModel from '../../../models/CharacterModel';
 import CharacterListDTO from '../dto/characterListDTO';
 import { fromModelToCharacter, fromModelToCharacterList } from '../mapper/characterMapper';
 import CharacterNotFoundException from '../exception/CharacterNotFoundException';
 import Character from '../entity/Character';
-import FilmModel from '../../film/model/FilmModel';
+import FilmModel from '../../../models/FilmModel';
+
+interface ISearchParams {
+  name?: string | null;
+  age?: number | null;
+  weight?: number | null;
+  filmName? : string | null;
+}
+
 
 export default class CharacterRepository {
   constructor(private characterModel : typeof CharacterModel) {}
@@ -35,8 +43,9 @@ export default class CharacterRepository {
     return !!(await this.characterModel.destroy({ where: { id } }));
   }
 
-  async search(name? : string | null, age?: number | null, weight? : number) {
+  async search({name, age, weight, filmName} : ISearchParams) {
     const whereCondition : any = {};
+    let includeCondition : any =[];
     if (name) {
       whereCondition.name = { [Op.like]: `%${name}%` };
     }
@@ -46,7 +55,13 @@ export default class CharacterRepository {
     if (weight) {
       whereCondition.weight = weight;
     }
-    return (await this.characterModel.findAll({ where: whereCondition })).map(
+    if(filmName) {
+      includeCondition = [
+        { model: FilmModel, where: { title: { [Op.like]: `%${filmName}%`}} }
+      ]
+    }
+     return(await this.characterModel.findAll({  where:whereCondition, include:includeCondition } ))
+      .map(
       (item) => fromModelToCharacterList(item),
     );
   }
