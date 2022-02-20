@@ -5,7 +5,7 @@ import {
 import {
   BelongsToGetAssociationMixin, BelongsToManyAddAssociationMixin,
   BelongsToManyGetAssociationsMixin, BelongsToManyRemoveAssociationMixin,
-  BelongsToSetAssociationMixin
+  BelongsToSetAssociationMixin,
 } from 'sequelize';
 import CharacterModel from './CharacterModel';
 import GenreModel from './GenreModel';
@@ -45,9 +45,12 @@ export default class FilmModel extends Model {
     characters!: CharacterModel[];
 
   declare getCharacters : BelongsToManyGetAssociationsMixin<CharacterModel>;
-  declare addCharacter : BelongsToManyAddAssociationMixin<CharacterModel, CharacterModel['id']>
-  declare removeCharacter : BelongsToManyRemoveAssociationMixin<CharacterModel, CharacterModel['id']>
 
-  declare getGenre : BelongsToGetAssociationMixin<GenreModel>
-  declare setGenre : BelongsToSetAssociationMixin<GenreModel, GenreModel['id']>
+  declare addCharacter : BelongsToManyAddAssociationMixin<CharacterModel, CharacterModel['id']>;
+
+  declare removeCharacter : BelongsToManyRemoveAssociationMixin<CharacterModel, CharacterModel['id']>;
+
+  declare getGenre : BelongsToGetAssociationMixin<GenreModel>;
+
+  declare setGenre : BelongsToSetAssociationMixin<GenreModel, GenreModel['id']>;
 }

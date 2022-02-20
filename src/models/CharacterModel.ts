@@ -54,8 +54,7 @@ export default class CharacterModel extends Model {
 
   declare addFilm : BelongsToManyAddAssociationMixin<FilmModel, FilmModel['id']>;
 
-  declare setFilms : BelongsToManySetAssociationsMixin<FilmModel, FilmModel["id"]>
+  declare setFilms : BelongsToManySetAssociationsMixin<FilmModel, FilmModel['id']>;
 
   declare removeFilm : BelongsToManyRemoveAssociationMixin<FilmModel, FilmModel['id']>;
-
 }

@@ -88,8 +88,10 @@ describe('CharacterRepository test', () => {
         id: v4(), title: 'shrek 1', image: 'test', releaseDate: new Date('1/1/2005'), rating: 4,
       }, { isNewRecord: true });
 
-      await characterRespository.save(new Character(null, 'shrek.png', 'shrek', 'shrekStory'),
-        [filmModel.id]);
+      await characterRespository.save(
+        new Character(null, 'shrek.png', 'shrek', 'shrekStory'),
+        [filmModel.id],
+      );
       const result = await CharacterModel.findOne({ where: { name: 'shrek' } });
       const associatedFilms = await result!.getFilms();
       expect(result).to.have.property('id').to.not.be.null;
@@ -112,7 +114,6 @@ describe('CharacterRepository test', () => {
       const characterModel = await CharacterModel.build(characterData, { isNewRecord: true });
       await characterModel.save();
 
-
       await characterRespository.save({ ...characterData, story: 'updatedField' }, [filmModel.id]);
 
       let result = await CharacterModel.findByPk(characterData.id!);
@@ -128,7 +129,7 @@ describe('CharacterRepository test', () => {
       expect(associatedFilms[0].id).to.be.eq(filmModel2.id);
     });
 
-    it("update replaces all existing associations", async()=>{
+    it('update replaces all existing associations', async () => {
       // noinspection DuplicatedCode
       const characterData : Partial<Character> = {
         id: v4(), name: 'shrek', image: 'shrek.jpg', story: 'shrekStory',
@@ -150,11 +151,11 @@ describe('CharacterRepository test', () => {
       const associatedFilms = await result!.getFilms();
       expect(associatedFilms).to.have.length(1);
       expect(associatedFilms[0].id).to.be.eq(filmModel2.id);
-    })
+    });
 
-    it("throws if given wrong filmId as parameter", async()=>{
-      expect(characterRespository.save({id:v4()}, ["1"])).to.be.rejectedWith(InvalidFilmGivenException)
-    })
+    it('throws if given wrong filmId as parameter', async () => {
+      expect(characterRespository.save({ id: v4() }, ['1'])).to.be.rejectedWith(InvalidFilmGivenException);
+    });
   });
 
   describe('delete test', () => {

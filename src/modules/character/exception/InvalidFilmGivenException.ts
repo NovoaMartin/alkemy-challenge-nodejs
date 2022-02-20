@@ -1,1 +1,1 @@
-export default class InvalidFilmGivenException extends Error{}
+export default class InvalidFilmGivenException extends Error {}

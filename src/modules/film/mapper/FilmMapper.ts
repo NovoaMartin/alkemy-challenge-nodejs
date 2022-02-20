@@ -9,9 +9,9 @@ export default async function fromModelToFilm(model : FilmModel) {
     model.title,
     model.releaseDate,
     model.rating,
-    { name, href:`${process.env.BASE_URL}/genres/${id}` },
+    { name, href: `${process.env.BASE_URL}/genres/${id}` },
     (await model.getCharacters()).map((item) => (
-      { name: item.name, href:`${process.env.BASE_URL}/characters/${item.id}` }
+      { name: item.name, href: `${process.env.BASE_URL}/characters/${item.id}` }
     )),
   );
 }

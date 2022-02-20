@@ -16,30 +16,29 @@ interface ISearchParams {
 }
 
 export default class CharacterRepository {
-  constructor (private characterModel: typeof CharacterModel, private filmModel: typeof FilmModel) {}
+  constructor(private characterModel: typeof CharacterModel, private filmModel: typeof FilmModel) {}
 
-  async getAll (): Promise<CharacterListDTO[]> {
+  async getAll(): Promise<CharacterListDTO[]> {
     return (await this.characterModel.findAll({ attributes: ['id', 'name', 'image'] })).map(
       (item) => fromModelToCharacterList(item),
     );
   }
 
-  async getById (id: string): Promise<Character> {
+  async getById(id: string): Promise<Character> {
     const result = await this.characterModel.findByPk(id, { include: FilmModel });
     if (!result) throw new CharacterNotFoundException();
     return fromModelToCharacter(result);
   }
 
-  async save (character: Partial<Character>, associatedFilms?: string[]) {
+  async save(character: Partial<Character>, associatedFilms?: string[]) {
     let films: FilmModel[] = [];
     if (associatedFilms) {
       films = await this.filmModel.findAll({
         where: {
-          id: { [Op.in]: associatedFilms }
-        }
+          id: { [Op.in]: associatedFilms },
+        },
       });
-      if (films.length !== associatedFilms.length)
-        throw new InvalidFilmGivenException();
+      if (films.length !== associatedFilms.length) throw new InvalidFilmGivenException();
     }
 
     const isNewRecord = !character.id;
@@ -52,11 +51,13 @@ export default class CharacterRepository {
     return fromModelToCharacter(await instance.reload());
   }
 
-  async delete (id: string) {
+  async delete(id: string) {
     return !!(await this.characterModel.destroy({ where: { id } }));
   }
 
-  async search ({ name, age, weight, filmName }: ISearchParams) {
+  async search({
+    name, age, weight, filmName,
+  }: ISearchParams) {
     const whereCondition: any = {};
     let includeCondition: any = [];
     if (name) {
@@ -70,7 +71,7 @@ export default class CharacterRepository {
     }
     if (filmName) {
       includeCondition = [
-        { model: FilmModel, where: { title: { [Op.like]: `%${filmName}%` } } }
+        { model: FilmModel, where: { title: { [Op.like]: `%${filmName}%` } } },
       ];
     }
     return (await this.characterModel.findAll({ where: whereCondition, include: includeCondition }))

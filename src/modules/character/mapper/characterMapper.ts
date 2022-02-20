@@ -11,8 +11,7 @@ export async function fromModelToCharacter(model: CharacterModel) : Promise<Char
     model.age,
     model.weight,
     (await model.getFilms()).map((film) => (
-      {  title: film.title, href: `${process.env.BASE_URL}/movies/${film.id}` })
-    ),
+      { title: film.title, href: `${process.env.BASE_URL}/movies/${film.id}` })),
   );
 }
 

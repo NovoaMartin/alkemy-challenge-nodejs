@@ -4,7 +4,7 @@ import { UserModel } from '../../modules/auth/module';
 import CharacterModel from '../../models/CharacterModel';
 import FilmModel from '../../models/FilmModel';
 import GenreModel from '../../models/GenreModel';
-import  CharacterFilm  from '../../models/CharacterFilm';
+import CharacterFilm from '../../models/CharacterFilm';
 
 config();
 
