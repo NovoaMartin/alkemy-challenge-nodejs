@@ -13,7 +13,7 @@ import FilmModel from '../../../../src/models/FilmModel';
 import GenreModel from '../../../../src/models/GenreModel';
 import { UserModel } from '../../../../src/modules/auth/module';
 import { fromModelToCharacter } from '../../../../src/modules/character/mapper/characterMapper';
-import CharacterFilm  from '../../../../src/models/CharacterFilm';
+import CharacterFilm from '../../../../src/models/CharacterFilm';
 
 chai.use(chaiAsPromised);
 
@@ -25,7 +25,7 @@ describe('CharacterRepository test', () => {
     const sequelizeInstance : Sequelize = new Sequelize('sqlite::memory');
     sequelizeInstance.addModels([UserModel, CharacterModel, FilmModel, GenreModel, CharacterFilm]);
     await sequelizeInstance.sync({ force: true });
-    characterRespository = new CharacterRepository(CharacterModel);
+    characterRespository = new CharacterRepository(CharacterModel, FilmModel);
   });
   afterEach(() => {
     sandbox.restore();
@@ -76,13 +76,13 @@ describe('CharacterRepository test', () => {
   });
 
   describe('save test', () => {
-    it('persists a new character', async () => {
+    it('persists a new character without associations', async () => {
       await characterRespository.save(new Character(null, 'shrek.png', 'shrek', 'shrekStory'));
       const result = await CharacterModel.findOne({ where: { name: 'shrek' } });
       expect(result).to.have.property('id').to.not.be.null;
     });
 
-    it('updates a character', async () => {
+    it('updates a character without associations', async () => {
       const characterData : Partial<Character> = {
         id: v4(), name: 'shrek', image: 'shrek.jpg', story: 'shrekStory',
       };
@@ -94,6 +94,75 @@ describe('CharacterRepository test', () => {
       const result = await CharacterModel.findByPk(characterData.id!);
       expect(result).to.have.property('story').to.be.eq('updatedField');
     });
+
+    it('persist a new character with associations', async () => {
+      const filmModel = await FilmModel.create({
+        id: v4(), title: 'shrek 1', image: 'test', releaseDate: new Date('1/1/2005'), rating: 4,
+      }, { isNewRecord: true });
+
+      await characterRespository.save(new Character(null, 'shrek.png', 'shrek', 'shrekStory'),
+        [filmModel.id]);
+      const result = await CharacterModel.findOne({ where: { name: 'shrek' } });
+      const associatedFilms = await result!.getFilms();
+      expect(result).to.have.property('id').to.not.be.null;
+      expect(associatedFilms[0].id).to.be.eq(filmModel.id);
+    });
+
+    it('updates a character with associations', async () => {
+      // noinspection DuplicatedCode
+      const characterData : Partial<Character> = {
+        id: v4(), name: 'shrek', image: 'shrek.jpg', story: 'shrekStory',
+      };
+      const filmModel = await FilmModel.create({
+        id: v4(), title: 'shrek 1', image: 'test', releaseDate: new Date('1/1/2005'), rating: 4,
+      }, { isNewRecord: true });
+
+      const filmModel2 = await FilmModel.create({
+        id: v4(), title: 'shrek 1', image: 'test', releaseDate: new Date('1/1/2005'), rating: 4,
+      }, { isNewRecord: true });
+
+      const characterModel = await CharacterModel.build(characterData, { isNewRecord: true });
+      await characterModel.save();
+
+
+      await characterRespository.save({ ...characterData, story: 'updatedField' }, [filmModel.id]);
+
+      let result = await CharacterModel.findByPk(characterData.id!);
+      let associatedFilms = await result!.getFilms();
+      expect(result).to.have.property('story').to.be.eq('updatedField');
+      expect(associatedFilms[0].id).to.be.eq(filmModel.id);
+
+      await characterRespository.save({ ...characterData, story: 'updatedField' }, [filmModel2.id]);
+
+      result = await CharacterModel.findByPk(characterData.id!);
+      associatedFilms = await result!.getFilms();
+      expect(associatedFilms).to.have.length(1);
+      expect(associatedFilms[0].id).to.be.eq(filmModel2.id);
+    });
+
+    it("update replaces all existing associations", async()=>{
+      // noinspection DuplicatedCode
+      const characterData : Partial<Character> = {
+        id: v4(), name: 'shrek', image: 'shrek.jpg', story: 'shrekStory',
+      };
+      const filmModel1 = await FilmModel.create({
+        id: v4(), title: 'shrek 1', image: 'test', releaseDate: new Date('1/1/2005'), rating: 4,
+      }, { isNewRecord: true });
+      const filmModel2 = await FilmModel.create({
+        id: v4(), title: 'shrek 1', image: 'test', releaseDate: new Date('1/1/2005'), rating: 4,
+      }, { isNewRecord: true });
+
+      const characterModel = await CharacterModel.build(characterData, { isNewRecord: true });
+      await characterModel.save();
+      await characterModel.addFilm(filmModel1);
+
+      await characterRespository.save({ ...characterData, story: 'updatedField' }, [filmModel2.id]);
+
+      const result = await CharacterModel.findByPk(characterData.id!);
+      const associatedFilms = await result!.getFilms();
+      expect(associatedFilms).to.have.length(1);
+      expect(associatedFilms[0].id).to.be.eq(filmModel2.id);
+    })
   });
 
   describe('delete test', () => {
@@ -118,38 +187,39 @@ describe('CharacterRepository test', () => {
     let charModel1: CharacterModel;
     beforeEach(async () => {
       charModel1 = await CharacterModel.create(char1, { isNewRecord: true });
-       await CharacterModel.create(char2, { isNewRecord: true });
-       await CharacterModel.create(char3, { isNewRecord: true });
+      await CharacterModel.create(char2, { isNewRecord: true });
+      await CharacterModel.create(char3, { isNewRecord: true });
     });
     it('searches by age', async () => {
-      const result = await characterRespository.search({age:1});
+      const result = await characterRespository.search({ age: 1 });
       const expectedResult = [
         { id: char1.id, name: char1.name, image: char1.image },
         { id: char2.id, name: char2.name, image: char2.image }];
       expect(result).to.deep.eq(expectedResult);
     });
     it('searches by weight', async () => {
-      const result = await characterRespository.search({weight:4});
+      const result = await characterRespository.search({ weight: 4 });
       const expectedResult = [
         { id: char2.id, name: char2.name, image: char2.image },
         { id: char3.id, name: char3.name, image: char3.image }];
       expect(result).to.deep.eq(expectedResult);
     });
     it('searches by name', async () => {
-      const result = await characterRespository.search({name:"on"});
+      const result = await characterRespository.search({ name: 'on' });
       const expectedResult = [{ id: char3.id, name: char3.name, image: char3.image }];
       expect(result).to.deep.eq(expectedResult);
     });
-    it("searches by associated film", async()=>{
-      const filmModel1 = await FilmModel.create(
-        {id:v4(), title:"example", image:"testImage.jpg", releaseDate : new Date(), rating:5},{isNewRecord:true})
+    it('searches by associated film', async () => {
+      const filmModel1 = await FilmModel.create({
+        id: v4(), title: 'example', image: 'testImage.jpg', releaseDate: new Date(), rating: 5,
+      }, { isNewRecord: true });
       await charModel1.addFilm(filmModel1);
 
-      const result = await characterRespository.search({filmName:"xampl"});
-       expect(result).to.be.deep.eq([{id:char1.id, name:char1.name, image:char1.image}]);
-    })
+      const result = await characterRespository.search({ filmName: 'xampl' });
+      expect(result).to.be.deep.eq([{ id: char1.id, name: char1.name, image: char1.image }]);
+    });
     it('returns empty array if no character is found', async () => {
-      const result = await characterRespository.search({name:"invalidName"});
+      const result = await characterRespository.search({ name: 'invalidName' });
       expect(result).to.deep.eq([]);
     });
   });
