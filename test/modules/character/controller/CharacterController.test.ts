@@ -80,12 +80,54 @@ describe('characterController test', () => {
       expect(res.status).to.have.been.calledOnceWithExactly(404);
       expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'Character not found' } });
     });
+    it('responds with error if no id is specified', async () => {
+      const res = mockRes();
+      await characterController.getById(mockReq(), res);
+      expect(res.status).to.have.been.calledOnceWithExactly(404);
+      expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'No ID specified' } });
+    });
   });
 
-  it('responds with error if no id is specified', async () => {
-    const res = mockRes();
-    await characterController.getById(mockReq(), res);
-    expect(res.status).to.have.been.calledOnceWithExactly(404);
-    expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'No ID specified' } });
+  describe('delete test', () => {
+    it('responds with error if no id is specified', async () => {
+      const res = mockRes();
+      await characterController.delete(mockReq(), res);
+      expect(res.status).to.have.been.calledOnceWithExactly(404);
+      expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'No ID specified' } });
+    });
+    it('calls service with correct parameters', async () => {
+      const req = mockReq({
+        params: {
+          id: 'id',
+        },
+      });
+      const res = mockRes();
+      await characterController.delete(req, res);
+      expect(characterService.delete).to.have.been.calledOnceWithExactly('id');
+    });
+    it('responds with status 200 if sucessfull', async () => {
+      const req = mockReq({
+        params: {
+          id: 'id',
+        },
+      });
+      const res = mockRes();
+      characterService.delete.resolves(true);
+      await characterController.delete(req, res);
+      expect(res.status).to.have.been.calledOnceWithExactly(200);
+      expect(res.json).to.have.been.calledOnceWithExactly({ data: { deleted: true } });
+    });
+    it('responds with status 404 if no character found', async () => {
+      const req = mockReq({
+        params: {
+          id: 'id',
+        },
+      });
+      const res = mockRes();
+      characterService.delete.resolves(false);
+      await characterController.delete(req, res);
+      expect(res.status).to.have.been.calledOnceWithExactly(404);
+      expect(res.json).to.have.been.calledOnceWithExactly({ data: { deleted: false } });
+    });
   });
 });
