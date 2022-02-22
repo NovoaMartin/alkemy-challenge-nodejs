@@ -11,6 +11,7 @@ export default class CharacterController {
   configureRoutes(app : Application) {
     app.get(`${this.ROUTE}`, validateToken, this.getAll.bind(this));
     app.get(`${this.ROUTE}/:id`, validateToken, this.getById.bind(this));
+    app.delete(`${this.ROUTE}/:id`, validateToken, this.delete.bind(this));
   }
 
   async getAll(req : Request, res: Response) {
@@ -31,5 +32,13 @@ export default class CharacterController {
       }
     }
     return res.status(200).json({ data });
+  }
+
+  async delete(req: Request, res:Response) {
+    if (!req.params.id) {
+      return res.status(404).json({ data: {}, err: { msg: 'No ID specified' } });
+    }
+    const deleted = await this.characterService.delete(req.params.id);
+    return res.status(deleted ? 200 : 404).json({ data: { deleted } });
   }
 }
