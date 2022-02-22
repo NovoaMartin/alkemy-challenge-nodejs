@@ -55,7 +55,7 @@ describe('characterController test', () => {
       expect(characterService.getById).to.have.been.calledOnceWithExactly('id');
     });
     it('responds with the character details if character is found', async () => {
-      const expectedReturn = new Character('id', 'test', 'name', 'story', 42, 170, []);
+      const expectedReturn = new Character('id', 'test', 'name', 'story', 42, 170);
       const req = mockReq({
         params: {
           id: 'id',
@@ -65,7 +65,7 @@ describe('characterController test', () => {
       characterService.getById.resolves(expectedReturn);
       await characterController.getById(req, res);
       expect(res.status).to.have.been.calledOnceWithExactly(200);
-      expect(res.json).to.have.been.calledOnceWithExactly(expectedReturn);
+      expect(res.json).to.have.been.calledOnceWithExactly({ data: expectedReturn });
     });
 
     it('responds with error if no character is found', async () => {
@@ -80,5 +80,12 @@ describe('characterController test', () => {
       expect(res.status).to.have.been.calledOnceWithExactly(404);
       expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'Character not found' } });
     });
+  });
+
+  it('responds with error if no id is specified', async () => {
+    const res = mockRes();
+    await characterController.getById(mockReq(), res);
+    expect(res.status).to.have.been.calledOnceWithExactly(404);
+    expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'No ID specified' } });
   });
 });
