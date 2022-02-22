@@ -8,6 +8,8 @@ import { mockReq, mockRes } from 'sinon-express-mock';
 import CharacterController from '../../../../src/modules/character/controller/CharacterController';
 import CharacterService from '../../../../src/modules/character/service/CharacterService';
 import CharacterListDTO from '../../../../src/modules/character/dto/characterListDTO';
+import Character from '../../../../src/modules/character/entity/Character';
+import CharacterNotFoundException from '../../../../src/modules/character/exception/CharacterNotFoundException';
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -37,6 +39,46 @@ describe('characterController test', () => {
       await characterController.getAll(mockReq(), resMock);
       expect(resMock.status).to.have.been.calledOnceWithExactly(200);
       expect(resMock.json).to.have.been.calledOnceWithExactly({ data: expectedResponse });
+    });
+  });
+
+  describe('getById test', async () => {
+    it('calls service with correct parameters', async () => {
+      const req = mockReq({
+        params: {
+          id: 'id',
+        },
+      });
+      const res = mockRes();
+
+      await characterController.getById(req, res);
+      expect(characterService.getById).to.have.been.calledOnceWithExactly('id');
+    });
+    it('responds with the character details if character is found', async () => {
+      const expectedReturn = new Character('id', 'test', 'name', 'story', 42, 170, []);
+      const req = mockReq({
+        params: {
+          id: 'id',
+        },
+      });
+      const res = mockRes();
+      characterService.getById.resolves(expectedReturn);
+      await characterController.getById(req, res);
+      expect(res.status).to.have.been.calledOnceWithExactly(200);
+      expect(res.json).to.have.been.calledOnceWithExactly(expectedReturn);
+    });
+
+    it('responds with error if no character is found', async () => {
+      characterService.getById.callsFake(() => { throw new CharacterNotFoundException(); });
+      const req = mockReq({
+        params: {
+          id: 'id',
+        },
+      });
+      const res = mockRes();
+      await characterController.getById(req, res);
+      expect(res.status).to.have.been.calledOnceWithExactly(404);
+      expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'Character not found' } });
     });
   });
 });
