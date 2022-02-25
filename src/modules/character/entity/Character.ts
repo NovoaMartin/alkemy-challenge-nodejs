@@ -1,7 +1,7 @@
 export default class Character {
   constructor(
     public id : string | null,
-    public image : string,
+    public image : string | null,
     public name : string,
     public story : string,
     public age? : number,

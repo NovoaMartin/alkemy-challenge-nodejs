@@ -222,4 +222,52 @@ describe('characterController test', () => {
       expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'Invalid film provided' } });
     });
   });
+
+  describe('update test', () => {
+    it('Filters invalid id', async () => {
+      const res = mockRes();
+      await characterController.update(mockReq(), res);
+      expect(res.status).to.have.been.calledOnceWithExactly(404);
+      expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'Invalid ID specified' } });
+    });
+    it('Responds with the updated character', async () => {
+      const req = mockReq({
+        body: {
+          name: 'shrek',
+          story: 'shrekStory',
+          age: 40,
+          weight: 500,
+          films: [],
+        },
+        params: {
+          id: 'id',
+        },
+      });
+      const res = mockRes();
+      const character = new Character('id', 'test', 'shrek', 'shrekStory', 40, 500, []);
+      characterService.save.resolves(character);
+      characterService.getById.resolves(character);
+      await characterController.update(req, res);
+      expect(res.status).to.have.been.calledOnceWithExactly(200);
+      expect(res.json).to.have.been.calledOnceWithExactly({
+        data: character,
+      });
+    });
+    it('Responds with error if given invalid film id', async () => {
+      const req = mockReq({
+        body: {
+          films: ['id1', 'id2'],
+        },
+        params: {
+          id: 'id',
+        },
+      });
+      const res = mockRes();
+      characterService.save.callsFake(() => { throw new InvalidFilmGivenException(); });
+
+      await characterController.update(req, res);
+      expect(res.status).to.have.been.calledOnceWithExactly(404);
+      expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'Invalid film id provided' } });
+    });
+  });
 });
