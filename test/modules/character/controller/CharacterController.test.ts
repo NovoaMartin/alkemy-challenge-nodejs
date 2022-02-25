@@ -5,19 +5,21 @@ import { describe } from 'mocha';
 import { createSandbox, SinonSandbox, SinonStubbedInstance } from 'sinon';
 import { expect } from 'chai';
 import { mockReq, mockRes } from 'sinon-express-mock';
+import { v4 } from 'uuid';
 import CharacterController from '../../../../src/modules/character/controller/CharacterController';
 import CharacterService from '../../../../src/modules/character/service/CharacterService';
 import CharacterListDTO from '../../../../src/modules/character/dto/characterListDTO';
 import Character from '../../../../src/modules/character/entity/Character';
 import CharacterNotFoundException from '../../../../src/modules/character/exception/CharacterNotFoundException';
+import InvalidFilmGivenException from '../../../../src/modules/character/exception/InvalidFilmGivenException';
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
 describe('characterController test', () => {
-  let characterController : CharacterController;
-  let characterService : SinonStubbedInstance<CharacterService>;
-  let sandbox : SinonSandbox;
+  let characterController: CharacterController;
+  let characterService: SinonStubbedInstance<CharacterService>;
+  let sandbox: SinonSandbox;
   beforeEach(() => {
     sandbox = createSandbox();
     characterService = sandbox.createStubInstance(CharacterService);
@@ -128,6 +130,96 @@ describe('characterController test', () => {
       await characterController.delete(req, res);
       expect(res.status).to.have.been.calledOnceWithExactly(404);
       expect(res.json).to.have.been.calledOnceWithExactly({ data: { deleted: false } });
+    });
+  });
+
+  describe('create test', () => {
+    describe('filters request body', () => {
+      it('filters missing name', async () => {
+        const req = mockReq({
+          body: {
+            story: 'shrekStory',
+            age: 40,
+            weight: 500,
+            films: ['id1', 'id2'],
+          },
+        });
+
+        const res = mockRes();
+        await characterController.create(req, res);
+        expect(res.status).to.have.been.calledOnceWithExactly(404);
+        expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'No name specified' } });
+      });
+      it('filters missing story', async () => {
+        const req = mockReq({
+          body: {
+            name: 'shrek',
+            age: 40,
+            weight: 500,
+            films: ['id1', 'id2'],
+          },
+        });
+
+        const res = mockRes();
+        await characterController.create(req, res);
+        expect(res.status).to.have.been.calledOnceWithExactly(404);
+        expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'No story specified' } });
+      });
+    });
+
+    it('Calls service with correct parameters', async () => {
+      const req = mockReq({
+        body: {
+          name: 'shrek',
+          story: 'shrekStory',
+          age: 40,
+          weight: 500,
+          films: ['id1', 'id2'],
+        },
+      });
+
+      const res = mockRes();
+      await characterController.create(req, res);
+      expect(characterService.save).to.have.been.calledOnceWithExactly({
+        image: undefined, name: 'shrek', story: 'shrekStory', age: 40, weight: 500,
+      }, ['id1', 'id2']);
+    });
+    it('Responds with the saved user', async () => {
+      const req = mockReq({
+        body: {
+          name: 'shrek',
+          story: 'shrekStory',
+          age: 40,
+          weight: 500,
+          films: [],
+        },
+      });
+
+      const res = mockRes();
+      const character = new Character(v4(), 'test', 'shrek', 'shrekStory', 40, 500, []);
+      characterService.save.resolves(character);
+
+      await characterController.create(req, res);
+      expect(res.status).to.have.been.calledOnceWithExactly(200);
+      expect(res.json).to.have.been.calledOnceWithExactly({ data: character });
+    });
+    it('Responds with error if given an invalid film', async () => {
+      const req = mockReq({
+        body: {
+          name: 'shrek',
+          story: 'shrekStory',
+          age: 40,
+          weight: 500,
+          films: ['id1'],
+        },
+      });
+
+      const res = mockRes();
+      characterService.save.callsFake(() => { throw new InvalidFilmGivenException(); });
+
+      await characterController.create(req, res);
+      expect(res.status).to.have.been.calledOnceWithExactly(404);
+      expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'Invalid film provided' } });
     });
   });
 });

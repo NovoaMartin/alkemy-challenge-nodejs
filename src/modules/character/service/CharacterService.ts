@@ -17,7 +17,7 @@ export default class CharacterService {
     return this.characterRepository.delete(id);
   }
 
-  async save(character : Character, associatedFilm : string[]) {
+  async save(character : Partial<Character>, associatedFilm : string[]) {
     return this.characterRepository.save(character, associatedFilm);
   }
 }
