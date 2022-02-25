@@ -1,4 +1,5 @@
 import { Application, Request, Response } from 'express';
+import { Multer } from 'multer';
 import CharacterService from '../service/CharacterService';
 import CharacterNotFoundException from '../exception/CharacterNotFoundException';
 import validateToken from '../../../lib/auth';
@@ -7,15 +8,15 @@ import InvalidFilmGivenException from '../exception/InvalidFilmGivenException';
 export default class CharacterController {
   ROUTE = '/characters';
 
-  constructor(private characterService : CharacterService) {}
+  constructor(private characterService : CharacterService, private uploadMiddleware : Multer) {}
 
   /* istanbul ignore next */
   configureRoutes(app : Application) {
     app.get(`${this.ROUTE}`, validateToken, this.getAll.bind(this));
     app.get(`${this.ROUTE}/:id`, validateToken, this.getById.bind(this));
     app.delete(`${this.ROUTE}/:id`, validateToken, this.delete.bind(this));
-    app.post(`${this.ROUTE}`, validateToken, this.create.bind(this));
-    app.patch(`${this.ROUTE}/:id`, validateToken, this.update.bind(this));
+    app.post(`${this.ROUTE}`, validateToken, this.uploadMiddleware.single('image'), this.create.bind(this));
+    app.patch(`${this.ROUTE}/:id`, validateToken, this.uploadMiddleware.single('image'), this.update.bind(this));
   }
 
   async getAll(req : Request, res: Response) {

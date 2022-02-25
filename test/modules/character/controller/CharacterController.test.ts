@@ -6,6 +6,7 @@ import { createSandbox, SinonSandbox, SinonStubbedInstance } from 'sinon';
 import { expect } from 'chai';
 import { mockReq, mockRes } from 'sinon-express-mock';
 import { v4 } from 'uuid';
+import multer from 'multer';
 import CharacterController from '../../../../src/modules/character/controller/CharacterController';
 import CharacterService from '../../../../src/modules/character/service/CharacterService';
 import CharacterListDTO from '../../../../src/modules/character/dto/characterListDTO';
@@ -23,7 +24,7 @@ describe('characterController test', () => {
   beforeEach(() => {
     sandbox = createSandbox();
     characterService = sandbox.createStubInstance(CharacterService);
-    characterController = new CharacterController(characterService);
+    characterController = new CharacterController(characterService, multer());
   });
   afterEach(() => {
     sandbox.restore();
