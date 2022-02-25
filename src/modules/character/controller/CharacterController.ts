@@ -20,7 +20,12 @@ export default class CharacterController {
   }
 
   async getAll(req : Request, res: Response) {
-    const data = await this.characterService.getAll();
+    const {
+      name, age, weight, filmName,
+    } = req.query;
+    const data = await this.characterService.getAll({
+      name: name as any, age: age as any, weight: weight as any, filmName: filmName as any,
+    });
     return res.status(200).json({ data });
   }
 
@@ -86,6 +91,7 @@ export default class CharacterController {
     if (!Array.isArray(films)) {
       films = existingCharacter.films?.map((film) => film.href.split('/movies/')[1]);
     }
+
     let result;
     try {
       result = await this.characterService.save({

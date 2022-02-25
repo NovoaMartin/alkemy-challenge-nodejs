@@ -74,7 +74,7 @@ export default class CharacterRepository {
         { model: FilmModel, where: { title: { [Op.like]: `%${filmName}%` } } },
       ];
     }
-    return (await this.characterModel.findAll({ where: whereCondition, include: includeCondition }))
+    return (await this.characterModel.findAll({ attributes: ['id', 'name', 'image'], where: whereCondition, include: includeCondition }))
       .map(
         (item) => fromModelToCharacterList(item),
       );
