@@ -24,13 +24,15 @@ describe('CharacterService test', () => {
 
   describe('getAll test', () => {
     it('calls characterRepository with the correct parameters', async () => {
-      await characterService.getAll();
-      expect(characterRepository.getAll).to.have.been.calledOnceWithExactly();
+      await characterService.getAll({});
+      expect(characterRepository.search).to.have.been.calledOnceWithExactly({
+        name: undefined, age: undefined, weight: undefined, filmName: undefined,
+      });
     });
     it('returns the correct data', async () => {
       const expectedReturn = [new CharacterListDTO('1', 'name', 'test')];
-      characterRepository.getAll.resolves(expectedReturn);
-      const result = await characterService.getAll();
+      characterRepository.search.resolves(expectedReturn);
+      const result = await characterService.getAll({});
       expect(result).to.be.deep.eq(expectedReturn);
     });
   });

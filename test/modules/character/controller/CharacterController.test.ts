@@ -33,7 +33,9 @@ describe('characterController test', () => {
   describe('getAll test', () => {
     it('calls service with correct parameters', async () => {
       await characterController.getAll(mockReq(), mockRes());
-      expect(characterService.getAll).to.have.been.calledOnceWithExactly();
+      expect(characterService.getAll).to.have.been.calledOnceWithExactly({
+        name: undefined, age: undefined, weight: undefined, filmName: undefined,
+      });
     });
     it('responds with correct data', async () => {
       const expectedResponse = [new CharacterListDTO('1', 'name', 'test')];
