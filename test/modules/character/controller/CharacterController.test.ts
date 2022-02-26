@@ -233,6 +233,32 @@ describe('characterController test', () => {
       expect(res.status).to.have.been.calledOnceWithExactly(404);
       expect(res.json).to.have.been.calledOnceWithExactly({ data: {}, err: { msg: 'Invalid ID specified' } });
     });
+    it('Keeps previous film is no filmId array is provided', async () => {
+      const req = mockReq({
+        body: {
+          name: 'shrek',
+          story: 'shrekStory',
+          age: 40,
+          weight: 500,
+        },
+        params: {
+          id: 'id',
+        },
+      });
+      const res = mockRes();
+      const character = new Character('id', '', 'shrek', 'shrekStory', 40, 500, [{ title: 'title', href: `${process.env.BASE_URL}/movies/id1` }]);
+      characterService.getById.resolves(character);
+      await characterController.update(req, res);
+      expect(characterService.save).to.have.been.calledOnceWithExactly({
+        id: character.id,
+        image: '',
+        name: 'shrek',
+        story: 'shrekStory',
+        age: 40,
+        weight: 500,
+      }, ['id1']);
+      expect(res.status).to.have.been.calledOnceWithExactly(200);
+    });
     it('Responds with the updated character', async () => {
       const req = mockReq({
         body: {

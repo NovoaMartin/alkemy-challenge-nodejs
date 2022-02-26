@@ -5,6 +5,7 @@ import UserModel from '../../models/UserModel';
 import UserRepository from './repository/UserRepository';
 import UserService from './service/UserService';
 
+/* istanbul ignore next */
 export default function initAuthModule(app : Application, container :AwilixContainer) {
   container.resolve('userController').configureRoutes(app);
 }
